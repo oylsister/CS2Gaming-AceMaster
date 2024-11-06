@@ -1,4 +1,5 @@
-﻿using CounterStrikeSharp.API;
+﻿using System.Globalization;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Core.Capabilities;
@@ -77,14 +78,16 @@ namespace AceMaster
             {
                 var ace = data.Ace;
                 var complete = data.Complete;
+                var timeReset = DateTime.ParseExact(data.TimeReset, "M/d/yyyy", CultureInfo.InvariantCulture);
 
-                if (data.TimeReset == DateTime.Today.ToShortDateString())
+                if (timeReset <= DateTime.Today)
                 {
+                    ace = 0;
                     complete = false;
                     Task.Run(async () => await SaveClientData(steamID, ace, complete, true));
                 }
 
-                _playerKillCount.Add(client!, new(0, 0, false, complete));
+                _playerKillCount.Add(client!, new(0, ace, false, complete));
             }
 
             return HookResult.Continue;
